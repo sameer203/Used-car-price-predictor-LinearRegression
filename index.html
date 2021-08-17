@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="static/css/style.css">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <title>Used Car Price Predictor</title>
+  </head>
+  <body class="bg-dark">
+
+    <div class="container">
+        <div class="row">
+            <div class="card mt-50" style="width: 100%; height: 100%">
+                <div class="card-header">
+                    <div class="col-12" style="text-align: center">
+                        <h1> Welcome to Used Car Price Predictor</h1>
+                    </div>
+                    <div class="card-body">
+
+                        <form method="post"  accept-charset="utf-8">
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Company: </b></label>
+                                <select class="selectpicker form-control" id="company" name="company" required="1" onchange="load_car_models(this.id,'Models')">
+                                    {% for company in companies %}
+                                        <option value="{{ company }}">{{ company }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Car Model: </b></label>
+                                <select class="selectpicker form-control" id="Models" name="Models" required="1">
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Year of Purchase: </b></label>
+                                <select class="selectpicker form-control" id="Year" name="Year" required="1">
+                                    {% for years in Year %}
+                                        <option value="{{ years }}">{{ years }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Location: </b></label>
+                                <select class="selectpicker form-control" id="Location" name="Location" required="1">
+                                    {% for locations in Location %}
+                                        <option value="{{ locations }}">{{ locations }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Fuel Type: </b></label>
+                                <select class="selectpicker form-control" id="Fuel" name="Fuel" required="1">
+                                    {% for fuels in Fuel %}
+                                        <option value="{{ fuels }}">{{ fuels }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Owner Type: </b></label>
+                                <select class="selectpicker form-control" id="Owner" name="Owner" required="1">
+                                    {% for owners in Owner %}
+                                        <option value="{{ owners }}">{{ owners }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Select Transmission Type: </b></label>
+                                <select class="selectpicker form-control" id="Transmission" name="Transmission" required="1">
+                                    {% for transmissions in Transmission %}
+                                        <option value="{{ transmissions }}">{{ transmissions }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <label> <b> Enter Number of KMS Travelled </b></label>
+                                <input class="form-control" type="text" name="Kilometers_Driven" id="Kilometers_Driven" placeholder="Enter Number of KMS Travelled">
+
+                            </div>
+
+                            <div class="col-10 form-group" style="text-align: center">
+                                <button class="btn-primary form-control" onclick="send_data()">Predict Price</button>
+
+                            </div>
+
+
+
+
+
+                        </form>
+                        <br>
+                        <div class="row">
+                            <div class="col-12" style="text-align: centre">
+                                <h3> <span id="prediction"> </span> </h3>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    function load_car_models(company_id,Models_id)
+    {
+        var company=document.getElementById(company_id);
+        var car_model= document.getElementById(Models_id);
+        console.log(company.value);
+        car_model.value="";
+        car_model.innerHTML="";
+        {% for company in companies %}
+            if( company.value == "{{ company }}")
+            {
+                {% for model in Models %}
+                    {% if company in model %}
+
+                        var newOption= document.createElement("option");
+                        newOption.value="{{ model }}";
+                        newOption.innerHTML="{{ model }}";
+                        car_model.options.add(newOption);
+                    {% endif %}
+                {% endfor %}
+            }
+        {% endfor %}
+    }
+
+    function form_handler(event) {
+        event.preventDefault(); // Don't submit the form normally
+    }
+    function send_data()
+    {
+        document.querySelector('form').addEventListener("submit",form_handler);
+
+        var fd=new FormData(document.querySelector('form'));
+
+        var xhr= new XMLHttpRequest({mozSystem: true});
+
+        xhr.open('POST','/predict',true);
+        document.getElementById('prediction').innerHTML="Wait! Predicting Price.....";
+        xhr.onreadystatechange = function(){
+            if(xhr.readyState == XMLHttpRequest.DONE){
+                document.getElementById('prediction').innerHTML="Prediction: ₹"+xhr.responseText;
+
+            }
+        };
+
+        xhr.onload= function(){};
+
+        xhr.send(fd);
+    }
+</script>
+
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
